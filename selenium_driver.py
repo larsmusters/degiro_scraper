@@ -38,9 +38,9 @@ class SeleniumDriver():
             if not element.is_displayed:
                 self.logger.critical("Element found is invisible, don't do anything with it: " + locator + " locatorType: " + locatorType)
                 raise NoSuchElementException
-            self.logger.info("Element Found with locator: " , locator , " and locatorType: " , locatorType)
+            self.logger.info("Element Found with locator: " + locator + " and locatorType: " + locatorType)
         except:
-            self.logger.critical("Element not found with locator: " , locator , " and  locatorType: " , locatorType)
+            self.logger.critical("Element not found with locator: " + locator + " and  locatorType: " + locatorType)
         return element
     
     def elementClick(self, locator, locatorType="id"):
@@ -74,6 +74,14 @@ class SeleniumDriver():
             element = wait.until(EC.presence_of_element_located((byType, locator)))
             self.logger.info("Element appeared on the web page")
         except:
-            self.error.info("Element not appeared on the web page")
+            self.logger.error("Element not appeared on the web page")
             print_stack()
         return element
+
+    def waitForDownload(self, file_type: str ='.csv', timeout: int=10):
+        try:
+            self.logger.info("Waiting for maximum :: " + str(timeout) + " :: seconds for downloaded " + file_type + " to appear")
+            WebDriverWait(self.driver, timeout).until(lambda driver: file_type in driver.title)
+            self.logger.info("Download appeared")
+        except NoSuchElementException:
+            print('Download failed')
