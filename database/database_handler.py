@@ -4,7 +4,7 @@ import sqlite3
 
 class DatabaseHandler():
     DB_FILE = 'database/database.db'
-    SCHEMA_FILE = 'database/schema.sql'
+    SCHEMA_FILE = 'database/config/schema.sql'
 
 
     def __init__(self):
@@ -19,15 +19,17 @@ class DatabaseHandler():
         self.conn.executescript(schema)
 
 
-    def insert_data(self):
-        with open('database/example.sql', 'r') as rf:
-            basic_insert = rf.read()
-        self.conn.executescript(basic_insert)
+    def insert_data(self, df):
+        df.to_sql('data', self.conn, if_exists='append', index=False)
+        self.conn.commit()
     
 
     def get_all_data(self):
         return pd.read_sql("SELECT * FROM data", self.conn)
     
+
+    def get_data_by_name(self, name):
+        return pd.read_sql(f"SELECT * from data where product='{name}'", self.conn)
 
     def empty_db(self):
         self.cursor.execute("DELETE FROM data")
@@ -37,10 +39,10 @@ class DatabaseHandler():
     def __exit__(self, ext_type, exc_value, traceback):
         self.cursor.close()
         if isinstance(exc_value, Exception):
-            self.connection.rollback()
+            self.conn.rollback()
         else:
-            self.connection.commit()
-        self.connection.close()
+            self.conn.commit()
+        self.conn.close()
 
 
 

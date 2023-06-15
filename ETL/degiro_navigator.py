@@ -2,11 +2,15 @@ import os.path
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from selenium_driver import SeleniumDriver
+from browser.selenium_driver import SeleniumDriver
+import time
+
 
 class DeGiroNavigator():
 
     BASE_URL = "https://trader.degiro.nl/trader4/#/markets"
+
+    DOWNLOADS_PATH = os.getcwd() + '/data'
 
     def __init__(self):
         ## Setup chrome options
@@ -15,7 +19,7 @@ class DeGiroNavigator():
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--window-size=1920,1200")
         chrome_options.add_experimental_option("prefs", {
-            "download.default_directory": os.getcwd() + '/csv'  # Specify the directory to save downloads
+            "download.default_directory": self.DOWNLOADS_PATH  # Specify the directory to save downloads
         })
 
         # Set path to chromedriver as per your configuration
@@ -48,13 +52,28 @@ class DeGiroNavigator():
         self.driver.waitForElement(export_button_xpath, 'xpath')
         self.driver.elementClick(export_button_xpath, 'xpath')
 
-    def download_csv(self):
+    def download_csv(self, search_filename, filename):
         csv_xpath = '/html/body/div[2]/div/div/div[2]/div/div[2]/a[3]'
         self.driver.waitForElement(csv_xpath, 'xpath', timeout=100)
         self.driver.elementClick(csv_xpath, 'xpath')
 
-        # self.driver.waitForDownload()
+        time_waited = 0
+        wait_time = 0.2
+        while time_waited < 10:
+            time.sleep(wait_time)
+            if os.path.exists(self.DOWNLOADS_PATH + '/' + search_filename):
+                os.rename(
+                    self.DOWNLOADS_PATH + '/' + search_filename, 
+                    self.DOWNLOADS_PATH + '/' + filename
+                    )
+                break
+            time_waited += wait_time
+            
 
-    exit = lambda self: self.driver.driver.quit()
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, ext_type, exc_value, traceback):
+        self.driver.driver.quit()
 
 
