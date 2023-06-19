@@ -15,11 +15,11 @@ load_dotenv()
 DOWNLOADED_FILE_NAME = "Portfolio.csv"
 
 class DataCollector():
-    START_DATE = datetime(2023, 1, 1)
     DATE_FORMAT = "%Y_%m_%d"
     DEGIRO_DATE_FORMAT = "%d/%m/%Y"
 
-    def __init__(self):
+    def __init__(self, start_date):
+        self.START_DATE = start_date
         self.navigator = DeGiroNavigator()
         self.navigator.login()
         self.navigator.to_export_page()
@@ -66,6 +66,6 @@ class DataCollector():
         self.database_handler.__exit__()
 
 if __name__ == "__main__":
-    collector = DataCollector()
+    collector = DataCollector(datetime(2023,1,1))
     dates = collector.get_missing_dates()
     print(dates)
