@@ -1,11 +1,11 @@
 from database.config.column_mapping import column_name_mapping, column_type_mapping
-
+from datetime import datetime
 
 class DeGiroParser():
     def __init__(self):
         pass
 
-    def parse(self, df_in):
+    def parse(self, df_in, date: str):
         df = df_in.copy().rename(columns=column_name_mapping)
 
         df['product'] = self.parse_product(df['product'])
@@ -15,6 +15,7 @@ class DeGiroParser():
         df['currency'] = self.parse_currency(df['value_local'])
         df['value_local'] = self.parse_value_local(df['value_local'])
         df['value_eur'] = self.parse_value_eur(df['value_eur'])
+        df['create_dt'] = date
 
         return df.astype(column_type_mapping)
     

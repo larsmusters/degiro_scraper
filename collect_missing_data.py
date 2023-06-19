@@ -7,17 +7,19 @@ from ETL.degiro_data_parser import DeGiroParser
 from database.database_handler import DatabaseHandler
 from database.config.column_mapping import column_name_mapping
 from datetime import datetime
+import os
+import random
 
 load_dotenv()
 
 DOWNLOADED_FILE_NAME = "Portfolio.csv"
 
 class DataCollector():
-    START_DATE = datetime(2023, 4, 1)
+    START_DATE = datetime(2023, 1, 1)
+    DATE_FORMAT = "%Y_%m_%d"
+    DEGIRO_DATE_FORMAT = "%d/%m/%Y"
 
     def __init__(self):
-        dates = self.get_missing_dates()
-
         self.navigator = DeGiroNavigator()
         self.navigator.login()
         self.navigator.to_export_page()
@@ -25,11 +27,9 @@ class DataCollector():
         self.database_handler = DatabaseHandler()
 
 
-    def get_df_from_degiro(self, date: str):
-        date_string = date.replace("/", "_")
-        filename = f"{date_string}.csv"
+    def get_df_from_degiro(self, date: str, filename: str):
         self.navigator.to_export_date(date)
-        self.navigator.download_csv(DOWNLOADED_FILE_NAME,filename)
+        self.navigator.download_csv(DOWNLOADED_FILE_NAME,filename + '.csv')
 
         try:
             df = pd.read_csv(f"{self.navigator.DOWNLOADS_PATH}/{filename}")
@@ -37,10 +37,13 @@ class DataCollector():
             df = pd.DataFrame(columns=[*column_name_mapping.keys()])
         return df
 
-    def get_missing_dates(self) -> list[str]:
-        date_range = pd.date_range(self.START_DATE, datetime.now(), freq='d')
-        dates = [date.strftime("%m/%d/%Y") for date in date_range]
-        return dates
+
+    def get_missing_dates(self) -> list[datetime]:
+        all_dates = pd.date_range(self.START_DATE, datetime.now(), freq='d')
+        filenames = os.listdir(os.getcwd() + '/data')
+        present_dates = [datetime.strptime(filename.replace(".csv", ""), self.DATE_FORMAT) for filename in filenames]
+        absent_dates = [date for date in all_dates if date not in present_dates]
+        return absent_dates
     
 
     def get_missing_data(self) -> None:
@@ -48,10 +51,10 @@ class DataCollector():
         parser = DeGiroParser()
         df_all = pd.DataFrame(columns=[*column_name_mapping.values()])
         for date in dates:
-            df = self.get_df_from_degiro(date)
-            df = parser.parse(df)
+            df = self.get_df_from_degiro(date.strftime(self.DEGIRO_DATE_FORMAT), date.strftime(self.DATE_FORMAT))
+            df = parser.parse(df, date.strftime(self.DATE_FORMAT))
             df_all = pd.concat([df_all, df], ignore_index=True)
-            time.sleep(3)
+            time.sleep(random.uniform(2,4))
         self.database_handler.insert_data(df_all)
 
 

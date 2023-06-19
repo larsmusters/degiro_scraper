@@ -16,7 +16,7 @@ class DeGiroNavigator():
     def __init__(self):
         ## Setup chrome options
         chrome_options = Options()
-        # chrome_options.add_argument("--headless") # Ensure GUI is off
+        chrome_options.add_argument("--headless") # Ensure GUI is off
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--window-size=1920,1200")
         chrome_options.add_experimental_option("prefs", {

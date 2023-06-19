@@ -14,5 +14,6 @@ column_type_mapping = {
     'count': 'int32',
     'closing_price': 'float64',
     'value_local': 'float64',
-    'value_eur': 'float64'
+    'value_eur': 'float64',
+    'create_dt': 'object'
 }
