@@ -36,7 +36,7 @@ class DatabaseHandler():
         self.conn.commit()
 
 
-    def __exit__(self, ext_type, exc_value, traceback):
+    def __exit__(self, ext_type=None, exc_value=None, traceback=None):
         self.cursor.close()
         if isinstance(exc_value, Exception):
             self.conn.rollback()

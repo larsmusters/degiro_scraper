@@ -2,6 +2,7 @@ import os.path
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.keys import Keys
 from browser.selenium_driver import SeleniumDriver
 import time
 
@@ -52,7 +53,16 @@ class DeGiroNavigator():
         self.driver.waitForElement(export_button_xpath, 'xpath')
         self.driver.elementClick(export_button_xpath, 'xpath')
 
-    def download_csv(self, search_filename, filename):
+    def to_export_date(self, dateString: str):
+        input_xpath = "/html/body/div[2]/div/div/div[2]/div/div[1]/input"
+        self.driver.waitForElement(input_xpath, 'xpath', timeout=100)
+        self.driver.elementClick(input_xpath, 'xpath')
+        self.driver.clearElement(input_xpath, 'xpath')
+        self.driver.sendKeys(dateString, input_xpath, 'xpath' )
+        self.driver.sendKeys(Keys.ENTER, input_xpath, 'xpath')
+
+
+    def download_csv(self, search_filename, rename_to_filename):
         csv_xpath = '/html/body/div[2]/div/div/div[2]/div/div[2]/a[3]'
         self.driver.waitForElement(csv_xpath, 'xpath', timeout=100)
         self.driver.elementClick(csv_xpath, 'xpath')
@@ -64,7 +74,7 @@ class DeGiroNavigator():
             if os.path.exists(self.DOWNLOADS_PATH + '/' + search_filename):
                 os.rename(
                     self.DOWNLOADS_PATH + '/' + search_filename, 
-                    self.DOWNLOADS_PATH + '/' + filename
+                    self.DOWNLOADS_PATH + '/' + rename_to_filename
                     )
                 break
             time_waited += wait_time
@@ -73,7 +83,6 @@ class DeGiroNavigator():
     def __enter__(self):
         return self
     
-    def __exit__(self, ext_type, exc_value, traceback):
+    def __exit__(self, ext_type=None, exc_value=None, traceback=None):
         self.driver.driver.quit()
-
 

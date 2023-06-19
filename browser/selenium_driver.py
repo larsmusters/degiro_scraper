@@ -1,8 +1,8 @@
 from selenium.webdriver.common.by import By
 from traceback import print_stack
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import *
+from selenium.common.exceptions import NoSuchElementException, ElementNotVisibleException,  ElementNotSelectableException
 from util.logger import get_logger
 
 
@@ -44,29 +44,40 @@ class SeleniumDriver():
         return element
     
     def elementClick(self, locator, locatorType="id"):
-        try:
-            element = self.getElement(locator, locatorType)
-            element.click()
-            self.logger.info("Clicked on element with locator: " + locator + " locatorType: " + locatorType)
-        except:
+        element = self.getElement(locator, locatorType)
+        if not element:
             self.logger.critical("Cannot click on the element with locator: " + locator + " locatorType: " + locatorType)
             print_stack()
+            return
+        element.click()
+        self.logger.info("Clicked on element with locator: " + locator + " locatorType: " + locatorType)
 
     def sendKeys(self, data, locator, locatorType="id"):
-        try:
-            element = self.getElement(locator, locatorType)
-            element.send_keys(data)
-            self.logger.info("Sent data on element with locator: " + locator + " locatorType: " + locatorType)
-        except:
+        element = self.getElement(locator, locatorType)
+        if not element:
             self.logger.info("Cannot send data on the element with locator: " + locator + " locatorType: " + locatorType)
             print_stack()
+            return
+        element.send_keys(data)
+        self.logger.info("Sent data on element with locator: " + locator + " locatorType: " + locatorType)
+
+
+    def clearElement(self, locator, locatorType="id"):
+        element = self.getElement(locator, locatorType)
+        if not element:
+            self.logger.info("Cannot clear data on the element with locator: " + locator + " locatorType: " + locatorType)
+            print_stack()
+            return
+        element.clear()
+        self.logger.info("Cleared element with locator: " + locator + " locatorType: " + locatorType)
+
 
     def waitForElement(self, locator, locatorType="id",
                                timeout=10, pollFrequency=0.5):
         element = None
         try:
             byType = self.getByType(locatorType)
-            self.logger.info("Waiting for maximum :: " + str(timeout) + " :: seconds for element to be clickable")
+            self.logger.info(f"Waiting for maximum :: {str(timeout)} :: seconds for element {locator} to be clickable")
             wait = WebDriverWait(self.driver, timeout, poll_frequency=pollFrequency,
                                  ignored_exceptions=[NoSuchElementException,
                                                      ElementNotVisibleException,
