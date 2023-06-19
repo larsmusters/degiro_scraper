@@ -32,7 +32,7 @@ class DataCollector():
         self.navigator.download_csv(DOWNLOADED_FILE_NAME,filename + '.csv')
 
         try:
-            df = pd.read_csv(f"{self.navigator.DOWNLOADS_PATH}/{filename}")
+            df = pd.read_csv(f"{self.navigator.DOWNLOADS_PATH}/{filename}.csv")
         except pd.errors.EmptyDataError:
             df = pd.DataFrame(columns=[*column_name_mapping.keys()])
         return df
