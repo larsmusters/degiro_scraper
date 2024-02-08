@@ -1,5 +1,5 @@
 # DeGiro Scraper
-Scraper to retrieve daily progression data. DeGiro has an export per day function. This scraper could be used to collect that data. 
+Scraper to retrieve daily progression data. DeGiro has an export per day function. This scraper could be used to collect that data. Uses simple Selenium driver
 
 ### Personal notes
 
